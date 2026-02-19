@@ -1,0 +1,63 @@
+services:
+  processor:
+    image: secure-doc-ai:latest
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: pii_processor
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    user: "1001:1001" # Non-root. Matches Dockerfile UID.
+    read_only: true # Read-only filesystem.
+    tmpfs:
+      - /tmp:size=256m,mode=1777 # RAM-only scratch. PII never hits disk.
+    volumes:
+      - uploads_vol:/app/storage/uploads
+      - processed_vol:/app/storage/processed
+      - signed_vol:/app/storage/signed
+      - keys_vol:/app/storage/keys
+      - audit_db_vol:/app/storage
+    env_file:
+      - ../.env
+    environment:
+      - APP_ENV=production
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health/live')" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+volumes:
+  uploads_vol:
+    driver: local
+    driver_opts:
+      type: none
+      device: ../storage/uploads # Host path mapping
+      o: bind
+  processed_vol:
+    driver: local
+    driver_opts:
+      type: none
+      device: ../storage/processed
+      o: bind
+  signed_vol:
+    driver: local
+    driver_opts:
+      type: none
+      device: ../storage/signed
+      o: bind
+  keys_vol:
+    driver: local
+    driver_opts:
+      type: none
+      device: ../storage/keys
+      o: bind
+  audit_db_vol:
+    driver: local

@@ -1,0 +1,8 @@
+[ruff]
+line-length = 100
+target-version = "py310"
+select = ["E", "F", "W", "I", "N", "UP"]
+ignore = ["E501"]
+
+[ruff.per-file-ignores]
+"tests/*" = ["S101"]   # Allow assert in tests

@@ -1,0 +1,19 @@
+[tool.black]
+line-length = 100
+target-version = ["py310"]
+
+[tool.pytest.ini_options]
+testpaths = ["backend/tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+pythonpath = ["."]
+env = [
+  "API_KEY=ci-test-key",
+  "APP_ENV=test",
+  "DB_PATH=/tmp/test_audit.db",
+  "UPLOAD_DIR=/tmp/uploads",
+  "PROCESSED_DIR=/tmp/processed",
+  "SIGNED_DIR=/tmp/signed",
+  "KEYS_DIR=/tmp/keys"
+]
